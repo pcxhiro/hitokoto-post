@@ -7,6 +7,7 @@ Gemini が失敗した場合は内蔵の予備台本（オリジナル3本）か
 """
 import json
 import os
+import time
 
 FALLBACK_SCRIPTS = [
     {
@@ -102,12 +103,25 @@ def generate(log_rows, rules):
         client = genai.Client(api_key=api_key)
         prompt = PROMPT_TEMPLATE.format(
             history=_history_text(log_rows), rules=_rules_text(rules))
-        res = client.models.generate_content(
-            model=model,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json", temperature=1.0),
-        )
+        res = None
+        last_err = None
+        # 503（混雑）など一時的な失敗に備えて最大3回まで再試行する
+        for attempt in range(3):
+            try:
+                res = client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json", temperature=1.0),
+                )
+                break
+            except Exception as e:
+                last_err = e
+                print(f"[script] Gemini attempt {attempt + 1} failed ({e})")
+                if attempt < 2:
+                    time.sleep(20 * (attempt + 1))
+        if res is None:
+            raise RuntimeError(f"Gemini failed after retries: {last_err}")
         data = json.loads(res.text)
         for key in ("question", "answer", "comment_lead", "book_keyword"):
             if not str(data.get(key, "")).strip():
