@@ -19,11 +19,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: 日本語フォントと FFmpeg の確認
+      - name: 日本語フォントと FFmpeg のインストール
         run: |
           sudo apt-get update
-          sudo apt-get install -y fonts-noto-cjk
+          sudo apt-get install -y fonts-noto-cjk ffmpeg
           ffmpeg -version | head -1
+          ffprobe -version | head -1
 
       - name: ライブラリのインストール
         run: pip install -r requirements.txt
