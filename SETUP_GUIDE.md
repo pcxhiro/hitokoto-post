@@ -143,7 +143,7 @@ https://www.googleapis.com/auth/spreadsheets
 | `YT_REFRESH_TOKEN` | ①のリフレッシュトークン | 必須 |
 | `SHEET_ID` | ③のスプレッドシートID | 必須 |
 | `AMAZON_TAG` | Amazonアソシエイトのタグ（例 `xxxx-22`） | 任意。未登録ならリンクはタグなしで投稿されます |
-| `GEMINI_MODEL` | 空でOK（既定は gemini-2.5-flash） | 任意 |
+| `GEMINI_MODEL` | 空でOK（既定は gemini-3.8-flash） | 任意 |
 | `VIDEO_PRIVACY` | 空でOK（既定は public=公開） | 任意。最初は private にして様子を見るのも可 |
 
 ### 4-4. 初回テスト実行

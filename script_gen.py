@@ -92,7 +92,7 @@ def _fallback(log_rows):
 def generate(log_rows, rules):
     """台本 dict を返す。使用経路も print する。"""
     api_key = os.environ.get("GEMINI_API_KEY", "")
-    model = os.environ.get("GEMINI_MODEL", "").strip() or "gemini-2.5-flash"
+    model = os.environ.get("GEMINI_MODEL", "").strip() or "gemini-3.8-flash"
     if not api_key:
         print("[script] GEMINI_API_KEY not set; using fallback script")
         return _fallback(log_rows)
