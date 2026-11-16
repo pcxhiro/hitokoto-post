@@ -6,18 +6,17 @@
   2. Gemini が過去データ＋改善ルールから今日の台本を作る
   3. Edge-TTS（予備 gTTS）で音声、Pillow でカード、FFmpeg で動画を合成
   4. YouTube にアップロード（#Shorts）
-  5. トップコメントにおすすめ本（Amazon検索リンク＋広告表記）を自動投稿
+  5. トップコメント（その日の悩みに寄り添う一言のみ。外部リンクなし）を自動投稿
      ※コメントの「固定（ピン留め）」は YouTube の仕様上 API ではできないため、
        投稿だけ行う。固定したい日は YouTube Studio で1タップで可能。
   6. ログと新しい改善ルールをスプレッドシートに記録
 
 必要な環境変数（GitHub Secrets）:
   GEMINI_API_KEY, YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN,
-  SHEET_ID, AMAZON_TAG（任意）, GEMINI_MODEL（任意）, VIDEO_PRIVACY（任意）
+  SHEET_ID, GEMINI_MODEL（任意）, VIDEO_PRIVACY（任意）
 """
 import datetime
 import os
-import urllib.parse
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -111,16 +110,10 @@ def main():
     url = f"https://www.youtube.com/watch?v={video_id}"
     print(f"[main] uploaded: {url} (privacy={actual_privacy})")
 
-    # 5) トップコメント（おすすめ本の Amazon 検索リンク枠）
-    tag = env("AMAZON_TAG")
-    kw = urllib.parse.quote(script["book_keyword"])
-    amazon_url = f"https://www.amazon.co.jp/s?k={kw}"
-    if tag:
-        amazon_url += f"&tag={tag}"
-    comment = script["comment_lead"] + "\n"
-    comment += f"📚 今日のテーマに寄り添う本を探してみる: {amazon_url}\n"
-    if tag:
-        comment += "※リンクはAmazonアソシエイト（広告）を含みます。"
+    # 5) トップコメント（その日の悩みに寄り添う一言のみ）
+    # 2026-11-16 変更：シリーズ方針「実在の書籍は扱わない」に合わせ、
+    # 以前の Amazon 検索リンク枠は廃止した。外部リンクは付けない。
+    comment = script["comment_lead"]
     try:
         yt.post_comment(video_id, comment)
         print("[main] top comment posted")

@@ -14,21 +14,18 @@ FALLBACK_SCRIPTS = [
         "question": "会社の飲み会、正直行きたくありません。うまく断れますか？",
         "answer": "大丈夫です。「行けたら行きます」は、日本語における丁寧な不参加の表明として古くから親しまれています。今日は心置きなく、家でゆっくり休んでください。",
         "comment_lead": "飲み会の断り方に悩む夜、ありませんか。今日もおつかれさまです。",
-        "book_keyword": "断る力 コミュニケーション 本",
         "new_rule": "",
     },
     {
         "question": "月曜の朝、メールを開くのが怖いです。",
         "answer": "メールは開けた瞬間に現実になりますが、開ける前はまだ可能性のままです。まず深呼吸を3回。それから1通だけ、優しそうな件名のものから開いてみてください。",
         "comment_lead": "月曜の朝の inbox は、だれにとっても少し怖いものです。",
-        "book_keyword": "仕事の不安 心が軽くなる 本",
         "new_rule": "",
     },
     {
         "question": "買ったまま読んでいない本が5冊あります。",
         "answer": "積読は読書の前段階ではなく、すでに立派な趣味のひとつです。本棚の5冊は、未来のあなたへの贈り物として静かに待機中です。焦らず、今日は1ページからどうぞ。",
         "comment_lead": "積読仲間のみなさん、今日も本棚が充実していますね。",
-        "book_keyword": "読書習慣 本との付き合い方 本",
         "new_rule": "",
     },
 ]
@@ -54,13 +51,12 @@ PROMPT_TEMPLATE = """あなたは縦型ショート動画シリーズ『15秒の
 - 回答: 読み上げて約12秒（60〜80字）。丁寧で優しく、クスッと笑える比喩や言い換えを1つ入れる。
 - 実在の人物・団体・商品・書籍名は出さない。医療・法律・金銭の断定的アドバイスはしない。
   専門家の相談窓口を名乗らない。誰かを傷つける内容、煽り、誇大表現は禁止。
-- comment_lead: 投稿コメントの冒頭1文。その日の悩みに寄り添う優しい言葉（40字程度）。
-- book_keyword: その悩みに寄り添う本を Amazon で探すための検索キーワード
-  （例「朝 起きられない 習慣 本」）。実在しそうな具体的な書名は書かず、主題の言葉にする。
+- comment_lead: 投稿コメントの文。その日の悩みに寄り添う優しい言葉（40字程度）。
+  コメントに外部リンクは付けない。
 
 # 出力形式（JSONのみ。前置き・コードフェンス禁止）
 {{"question": "...", "answer": "...", "comment_lead": "...",
-  "book_keyword": "...", "new_rule": "..."}}
+  "new_rule": "..."}}
 """
 
 
@@ -123,7 +119,7 @@ def generate(log_rows, rules):
         if res is None:
             raise RuntimeError(f"Gemini failed after retries: {last_err}")
         data = json.loads(res.text)
-        for key in ("question", "answer", "comment_lead", "book_keyword"):
+        for key in ("question", "answer", "comment_lead"):
             if not str(data.get(key, "")).strip():
                 raise ValueError(f"missing field: {key}")
         data.setdefault("new_rule", "")
