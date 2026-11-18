@@ -10,6 +10,20 @@
 import asyncio
 import subprocess
 
+# 読み替え辞書（2026-11-18 追加）:
+# 音声合成が漢字の読みを外した語を、音声に渡す直前にひらがなへ差し替える。
+# 画面のカードは漢字のまま（cards.py は元の文を使う）。読み違いが
+# 見つかったらここに1行足す。
+READING_FIXES = {
+    "低電力": "ていでんりょく",
+}
+
+
+def _fix_reading(text):
+    for word, reading in READING_FIXES.items():
+        text = text.replace(word, reading)
+    return text
+
 
 async def _edge_tts(text, voice, out, rate=None):
     import edge_tts
@@ -40,6 +54,8 @@ def _gtts_fallback(question, answer, q_path, a_path):
 
 def synthesize(question, answer, q_path, a_path):
     """(question mp3, answer mp3) を作る。使用した方式名を返す。"""
+    question = _fix_reading(question)
+    answer = _fix_reading(answer)
     try:
         _edge(question, answer, q_path, a_path)
         return "edge-tts"
